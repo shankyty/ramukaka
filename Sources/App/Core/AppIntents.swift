@@ -49,7 +49,8 @@ struct MacAssistantShortcuts: AppShortcutsProvider {
                 "Check my mail with \(.applicationName)",
                 "Summarize emails with \(.applicationName)"
             ],
-            shortTitle: "Check Mail"
+            shortTitle: "Check Mail",
+            systemImageName: "envelope"
         )
     }
 }

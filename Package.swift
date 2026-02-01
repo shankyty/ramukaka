@@ -14,7 +14,10 @@ let package = Package(
         .executableTarget(
             name: "MacAssistant",
             dependencies: [],
-            path: "Sources/App"
+            path: "Sources/App",
+            resources: [
+                .process("Info.plist")
+            ]
         ),
         .testTarget(
             name: "MacAssistantTests",

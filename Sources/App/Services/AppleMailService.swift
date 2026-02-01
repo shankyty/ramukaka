@@ -44,7 +44,9 @@ class AppleMailService: MailService {
                 // throw NSError(domain: "AppleMailService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Mail app is not running"])
             }
 
-            guard let inbox = mailApp.inbox,
+            // Cast to protocol to access dynamic properties
+            guard let mailProtocol = mailApp as? MailApplication,
+                  let inbox = mailProtocol.inbox,
                   let sbMessages = inbox.messages?() else {
                 return []
             }
