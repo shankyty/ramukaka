@@ -15,8 +15,14 @@ let package = Package(
             name: "MacAssistant",
             dependencies: [],
             path: "Sources/App",
-            resources: [
-                .process("Info.plist")
+            resources: [],
+            linkerSettings: [
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "__info_plist",
+                    "-Xlinker", "Sources/App/App-Info.plist"
+                ])
             ]
         ),
         .testTarget(
