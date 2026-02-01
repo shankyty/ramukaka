@@ -10,6 +10,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct MacApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage("openai_api_key") private var apiKey: String = ""
 
     // In a real app, use Dependency Injection container
     @StateObject var interactor = AssistantInteractor(
@@ -23,11 +24,25 @@ struct MacApp: App {
             SpotlightView(interactor: interactor)
                 .onAppear {
                     // Transparent window setup would go here via NSWindow accessor
+                    configureService()
+                }
+                .onChange(of: apiKey) { newValue in
+                    configureService()
                 }
         }
         .windowStyle(.hiddenTitleBar)
         .commands {
             // Add custom commands if needed
+        }
+    }
+
+    private func configureService() {
+        if apiKey.isEmpty {
+            interactor.updateLLMService(MockLLMService())
+            print("Using MockLLMService")
+        } else {
+            interactor.updateLLMService(OpenAILLMService(apiKey: apiKey))
+            print("Using OpenAILLMService")
         }
     }
 }

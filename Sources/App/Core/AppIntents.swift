@@ -12,7 +12,14 @@ struct CheckMailIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<String> {
         let mailService = AppleMailService()
         let reminderService = EventKitReminderService()
-        let llmService = MockLLMService()
+
+        let apiKey = UserDefaults.standard.string(forKey: "openai_api_key") ?? ""
+        let llmService: LLMService
+        if apiKey.isEmpty {
+            llmService = MockLLMService()
+        } else {
+            llmService = OpenAILLMService(apiKey: apiKey)
+        }
 
         let interactor = AssistantInteractor(
             mailService: mailService,

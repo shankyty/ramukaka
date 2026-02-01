@@ -7,7 +7,7 @@ class AssistantInteractor: ObservableObject {
 
     private let mailService: MailService
     private let reminderService: ReminderService
-    private let llmService: LLMService
+    private var llmService: LLMService
 
     enum AppState {
         case idle
@@ -20,6 +20,10 @@ class AssistantInteractor: ObservableObject {
         self.mailService = mailService
         self.reminderService = reminderService
         self.llmService = llmService
+    }
+
+    func updateLLMService(_ service: LLMService) {
+        self.llmService = service
     }
 
     @MainActor

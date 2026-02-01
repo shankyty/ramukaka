@@ -3,6 +3,7 @@ import SwiftUI
 struct SpotlightView: View {
     @ObservedObject var interactor: AssistantInteractor
     @State private var inputText: String = ""
+    @State private var showSettings: Bool = false
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -26,6 +27,18 @@ struct SpotlightView: View {
                 if case .processing = interactor.state {
                     ProgressView()
                         .controlSize(.small)
+                }
+
+                Button(action: {
+                    showSettings = true
+                }) {
+                    Image(systemName: "gearshape")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .popover(isPresented: $showSettings) {
+                    SettingsView()
                 }
             }
             .padding(16)
