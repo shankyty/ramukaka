@@ -89,3 +89,4 @@ You must **Allow** these for the app to function. If you deny them, you can rese
 *   **App crashes immediately**: Ensure `Info.plist` is correctly embedded if you are building a proper `.app` bundle, or that you are running from a context that handles entitlements.
 *   **"Mail app is not running"**: The Mail app must be running (background or foreground) for the ScriptingBridge to work.
 *   **No emails found**: Ensure you have unread emails in your inbox.
+*   **Error: Unknown subcommand `generate-xcodeproj`**: This command has been deprecated and removed in recent Swift versions. Do not use it. Instead, simply open the `MacAssistant` folder (or `Package.swift`) directly in Xcode. Xcode now supports Swift Packages natively.
