@@ -42,14 +42,15 @@
 
 ### Method 2: Xcode (Recommended for Development)
 
-1.  Open the folder in Xcode or generate a project file:
-    ```bash
-    swift package generate-xcodeproj
-    open MacAssistant.xcodeproj
-    ```
-2.  Select the `MacAssistant` scheme.
-3.  Set your OpenAI API Key in the code (or modify `MacApp.swift` to read from an environment variable/Settings).
-4.  Run (Cmd+R).
+1.  Open the folder directly in Xcode:
+    *   Open Xcode.
+    *   Select **File > Open**.
+    *   Navigate to the `MacAssistant` folder and click **Open**.
+    *(Note: `swift package generate-xcodeproj` is deprecated and not needed. Xcode supports Swift Packages natively.)*
+2.  Wait for Swift Package Dependencies to resolve.
+3.  Select the `MacAssistant` scheme from the top toolbar.
+4.  Set your OpenAI API Key in the code (or modify `MacApp.swift` to read from an environment variable/Settings).
+5.  Run (Cmd+R).
 
 ## Configuration
 
