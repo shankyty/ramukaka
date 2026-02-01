@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.example.MacAssistant</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>MacAssistant needs to control Mail to read your messages.</string>
+    <key>NSRemindersUsageDescription</key>
+    <string>MacAssistant needs access to Reminders to create tasks for you.</string>
+</dict>
+</plist>
