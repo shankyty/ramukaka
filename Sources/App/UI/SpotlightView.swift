@@ -3,6 +3,7 @@ import SwiftUI
 struct SpotlightView: View {
     @ObservedObject var interactor: AssistantInteractor
     @State private var inputText: String = ""
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -13,6 +14,7 @@ struct SpotlightView: View {
                     .foregroundColor(.purple)
 
                 TextField("Ask Assistant (e.g., 'Check my mail')", text: $inputText)
+                    .focused($isFocused)
                     .font(.title2)
                     .textFieldStyle(.plain)
                     .onSubmit {
@@ -88,6 +90,9 @@ struct SpotlightView: View {
         }
         .frame(width: 650)
         .background(EffectView(material: .sidebar, blendingMode: .behindWindow))
+        .onAppear {
+            isFocused = true
+        }
     }
 }
 

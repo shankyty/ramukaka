@@ -1,7 +1,16 @@
 import SwiftUI
 
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Force the app to become active and frontmost
+        NSApp.activate(ignoringOtherApps: true)
+    }
+}
+
 @main
 struct MacApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     // In a real app, use Dependency Injection container
     @StateObject var interactor = AssistantInteractor(
         mailService: AppleMailService(),
