@@ -15,6 +15,11 @@ let package = Package(
             name: "MacAssistant",
             dependencies: [],
             path: "Sources/App"
+        ),
+        .testTarget(
+            name: "MacAssistantTests",
+            dependencies: ["MacAssistant"],
+            path: "Tests/AppTests"
         )
     ]
 )
