@@ -10,7 +10,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct MacApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     @AppStorage("openai_api_key") private var apiKey: String = ""
+    @AppStorage("llm_provider") private var provider: LLMProvider = .mock
+    @AppStorage("ollama_host") private var ollamaHost: String = "http://localhost:11434"
+    @AppStorage("ollama_model") private var ollamaModel: String = "llama3"
 
     // In a real app, use Dependency Injection container
     @StateObject var interactor = AssistantInteractor(
@@ -26,9 +30,10 @@ struct MacApp: App {
                     // Transparent window setup would go here via NSWindow accessor
                     configureService()
                 }
-                .onChange(of: apiKey) { newValue in
-                    configureService()
-                }
+                .onChange(of: apiKey) { _ in configureService() }
+                .onChange(of: provider) { _ in configureService() }
+                .onChange(of: ollamaHost) { _ in configureService() }
+                .onChange(of: ollamaModel) { _ in configureService() }
         }
         .windowStyle(.hiddenTitleBar)
         .commands {
@@ -37,12 +42,16 @@ struct MacApp: App {
     }
 
     private func configureService() {
-        if apiKey.isEmpty {
+        switch provider {
+        case .mock:
             interactor.updateLLMService(MockLLMService())
             print("Using MockLLMService")
-        } else {
+        case .openai:
             interactor.updateLLMService(OpenAILLMService(apiKey: apiKey))
             print("Using OpenAILLMService")
+        case .ollama:
+            interactor.updateLLMService(OllamaLLMService(host: ollamaHost, model: ollamaModel))
+            print("Using OllamaLLMService")
         }
     }
 }
