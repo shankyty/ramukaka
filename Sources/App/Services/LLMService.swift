@@ -126,3 +126,113 @@ class OpenAILLMService: LLMService {
         return EmailAnalysis(summary: llmOutput.summary, actionItems: actionItems)
     }
 }
+
+class OllamaLLMService: LLMService {
+    private let host: URL
+    private let model: String
+
+    init(host: String, model: String) {
+        // Ensure host has a scheme
+        var urlString = host
+        if !urlString.lowercased().hasPrefix("http://") && !urlString.lowercased().hasPrefix("https://") {
+            urlString = "http://" + urlString
+        }
+        // Remove trailing slash if present
+        if urlString.hasSuffix("/") {
+            urlString.removeLast()
+        }
+
+        self.host = URL(string: urlString) ?? URL(string: "http://localhost:11434")!
+        self.model = model
+    }
+
+    func processEmails(_ emails: [Email]) async throws -> EmailAnalysis {
+        let endpoint = host.appendingPathComponent("/api/chat")
+
+        // 1. Construct Prompt
+        var emailContent = ""
+        for (index, email) in emails.enumerated() {
+            emailContent += "Email \(index + 1):\nFrom: \(email.sender)\nSubject: \(email.subject)\nBody: \(email.body.prefix(300))\n\n"
+        }
+
+        let systemPrompt = """
+        You are a helpful assistant. Analyze the following emails.
+        Produce a JSON response with the following schema:
+        {
+          "summary": "Overall summary of the emails",
+          "actionItems": [
+            {
+              "title": "Action title",
+              "description": "Details",
+              "suggestedDueDate": "YYYY-MM-DD"
+            }
+          ]
+        }
+        If no due date is clear, leave suggestedDueDate null.
+        """
+
+        let messages: [[String: String]] = [
+            ["role": "system", "content": systemPrompt],
+            ["role": "user", "content": emailContent]
+        ]
+
+        let requestBody: [String: Any] = [
+            "model": model,
+            "messages": messages,
+            "format": "json",
+            "stream": false
+        ]
+
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+
+        // 2. Network Call
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw NSError(domain: "Ollama", code: 1, userInfo: [NSLocalizedDescriptionKey: "API Error: \(errorText)"])
+        }
+
+        // 3. Parse Response
+        struct OllamaResponse: Decodable {
+            struct Message: Decodable {
+                let content: String
+            }
+            let message: Message
+        }
+
+        let ollamaResponse = try JSONDecoder().decode(OllamaResponse.self, from: data)
+        guard let content = ollamaResponse.message.content.data(using: .utf8) else {
+             throw NSError(domain: "Ollama", code: 2, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
+        }
+
+        // Helper struct for intermediate decoding (Shared with OpenAI service logic, could be refactored)
+        struct LLMOutput: Decodable {
+            let summary: String
+            struct Item: Decodable {
+                let title: String
+                let description: String?
+                let suggestedDueDate: String?
+            }
+            let actionItems: [Item]
+        }
+
+        let llmOutput = try JSONDecoder().decode(LLMOutput.self, from: content)
+
+        // Map to Domain Model
+        let actionItems = llmOutput.actionItems.map { item -> ActionItem in
+            var date: Date? = nil
+            if let dateStr = item.suggestedDueDate {
+                let formatter = ISO8601DateFormatter()
+                formatter.formatOptions = [.withFullDate] // Expects YYYY-MM-DD
+                date = formatter.date(from: dateStr)
+            }
+            return ActionItem(title: item.title, description: item.description, suggestedDueDate: date)
+        }
+
+        return EmailAnalysis(summary: llmOutput.summary, actionItems: actionItems)
+    }
+}

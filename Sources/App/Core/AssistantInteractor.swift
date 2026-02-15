@@ -32,7 +32,7 @@ class AssistantInteractor: ObservableObject {
 
         do {
             // 1. Fetch
-            let emails = try await mailService.fetchUnreadEmails(limit: 10)
+            let emails = try await mailService.fetchUnreadEmails(limit: 5)
 
             if emails.isEmpty {
                 state = .error("No unread emails found.")

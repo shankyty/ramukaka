@@ -6,7 +6,9 @@ final class AssistantInteractorTests: XCTestCase {
     // Mocks
     class MockMailService: MailService {
         var emailsToReturn: [Email] = []
+        var lastLimit: Int?
         func fetchUnreadEmails(limit: Int) async throws -> [Email] {
+            lastLimit = limit
             return emailsToReturn
         }
     }
@@ -62,6 +64,7 @@ final class AssistantInteractorTests: XCTestCase {
             XCTAssertEqual(interactor.currentAnalysis?.summary, "Got mail")
             XCTAssertEqual(reminderService.createdReminders.count, 1)
             XCTAssertEqual(reminderService.createdReminders.first?.title, "Do work")
+            XCTAssertEqual(mailService.lastLimit, 5)
         } else {
             XCTFail("State should be .result")
         }
